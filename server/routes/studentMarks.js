@@ -215,5 +215,112 @@ router.post('/', async (req, res) => {
   }
 })
 
+// Update marks by CO and Bloom level
+router.put('/by-co-bloom', async (req, res) => {
+  try {
+    const { student_id, co_code, bloom_level, marks_obtained } = req.body
+
+    if (!student_id || !co_code || !bloom_level || marks_obtained === undefined) {
+      return res.status(400).json({ error: 'Missing required fields: student_id, co_code, bloom_level, marks_obtained' })
+    }
+
+    // Get CO and Bloom level IDs
+    const coResult = await pool.query('SELECT id FROM course_outcomes WHERE code = $1', [co_code])
+    if (coResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Course outcome not found' })
+    }
+    const coId = coResult.rows[0].id
+
+    const bloomResult = await pool.query('SELECT id FROM bloom_levels WHERE name = $1', [bloom_level])
+    if (bloomResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Bloom level not found' })
+    }
+    const bloomLevelId = bloomResult.rows[0].id
+
+    // Find all assessments that contribute to this CO and Bloom level
+    const assessmentsQuery = `
+      SELECT 
+        a.id as assessment_id,
+        a.max_marks,
+        acm.max_marks as co_bloom_max_marks,
+        acm.weight,
+        COALESCE(sm.marks_obtained, 0) as current_marks
+      FROM assessment_co_mapping acm
+      JOIN assessments a ON acm.assessment_id = a.id
+      LEFT JOIN student_marks sm ON sm.student_id = $1 AND sm.assessment_id = a.id
+      WHERE acm.co_id = $2 AND acm.bloom_level_id = $3
+    `
+    const assessmentsResult = await pool.query(assessmentsQuery, [student_id, coId, bloomLevelId])
+
+    if (assessmentsResult.rows.length === 0) {
+      return res.status(404).json({ error: 'No assessments found for this CO and Bloom level combination' })
+    }
+
+    // Calculate total max marks for this CO-Bloom combination
+    let totalMaxMarks = 0
+    assessmentsResult.rows.forEach(row => {
+      totalMaxMarks += parseFloat(row.co_bloom_max_marks) * parseFloat(row.weight)
+    })
+
+    if (totalMaxMarks === 0) {
+      return res.status(400).json({ error: 'Cannot update: max marks is zero for this combination' })
+    }
+
+    // Calculate the ratio needed
+    const targetMarks = parseFloat(marks_obtained)
+    const ratio = targetMarks / totalMaxMarks
+
+    // Update each assessment proportionally
+    const updates = []
+    for (const row of assessmentsResult.rows) {
+      const assessmentMaxMarks = parseFloat(row.max_marks)
+      const coBloomMaxMarks = parseFloat(row.co_bloom_max_marks)
+      const weight = parseFloat(row.weight)
+      const currentMarks = parseFloat(row.current_marks)
+
+      // Calculate current contribution from this CO-Bloom
+      const currentContribution = assessmentMaxMarks > 0 
+        ? (currentMarks / assessmentMaxMarks) * coBloomMaxMarks * weight
+        : 0
+
+      // Calculate what the contribution should be
+      const targetContribution = coBloomMaxMarks * weight * ratio
+
+      // Calculate the adjustment needed
+      const adjustment = targetContribution - currentContribution
+
+      // Calculate new total marks for the assessment
+      const newTotalMarks = Math.max(0, currentMarks + (adjustment * assessmentMaxMarks / (coBloomMaxMarks * weight)))
+
+      // Update the assessment marks
+      await pool.query(
+        `INSERT INTO student_marks (student_id, assessment_id, marks_obtained) 
+         VALUES ($1, $2, $3) 
+         ON CONFLICT (student_id, assessment_id) 
+         DO UPDATE SET marks_obtained = $3, updated_at = CURRENT_TIMESTAMP`,
+        [student_id, row.assessment_id, newTotalMarks]
+      )
+
+      updates.push({
+        assessment_id: row.assessment_id,
+        old_marks: currentMarks,
+        new_marks: newTotalMarks
+      })
+    }
+
+    res.json({
+      message: 'Marks updated successfully',
+      student_id,
+      co_code,
+      bloom_level,
+      marks_obtained: targetMarks,
+      updates
+    })
+  } catch (error) {
+    console.error('Error updating marks by CO-Bloom:', error)
+    res.status(500).json({ error: 'Failed to update marks', details: error.message })
+  }
+})
+
 export default router
 

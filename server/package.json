@@ -9,7 +9,8 @@
     "start": "node index.js",
     "create-db": "node db/create-db.js",
     "init-db": "node db/init.js",
-    "seed-csv": "node db/seed-csv.js"
+    "seed-csv": "node db/seed-csv.js",
+    "distribute-bloom": "node db/distribute-bloom-levels.js"
   },
   "keywords": [],
   "author": "",
