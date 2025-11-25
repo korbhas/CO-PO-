@@ -1,0 +1,114 @@
+.marks-table-container {
+  width: 100%;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.marks-table-container h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.marks-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  min-width: 800px;
+}
+
+.marks-table thead {
+  background-color: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.marks-table th {
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  background-color: #f8f9fa;
+}
+
+.marks-table .student-col {
+  background-color: #e9ecef;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  min-width: 150px;
+}
+
+.marks-table .co-header {
+  background-color: #dee2e6;
+  border-bottom: 2px solid #495057;
+}
+
+.marks-table .bloom-header {
+  background-color: #f8f9fa;
+  font-size: 0.85rem;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.marks-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.marks-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.marks-table .student-name {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 3;
+  padding: 12px;
+  border-right: 2px solid #dee2e6;
+}
+
+.marks-table tbody tr:hover .student-name {
+  background-color: #f8f9fa;
+}
+
+.student-roll {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.student-name-text {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.marks-table .mark-cell {
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.marks-table-loading,
+.marks-table-error,
+.marks-table-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.marks-table-error {
+  color: #dc3545;
+}
+

@@ -1,0 +1,124 @@
+.subject-list-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.header h1 {
+  color: #333;
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  padding: 20px 0;
+  border-bottom: 3px solid #4a90e2;
+}
+
+.subjects-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.subjects-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.subjects-table thead {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.subjects-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subjects-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.subjects-table tbody tr:hover {
+  background-color: #f0f8ff;
+}
+
+.subjects-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.subjects-table td {
+  padding: 15px;
+  font-size: 14px;
+  color: #333;
+}
+
+.code-cell {
+  font-weight: bold;
+  color: #4a90e2;
+  font-family: 'Courier New', monospace;
+}
+
+.name-cell {
+  font-weight: 500;
+}
+
+.desc-cell {
+  color: #666;
+  font-style: italic;
+}
+
+.action-cell {
+  text-align: center;
+}
+
+.view-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.view-button:hover {
+  background-color: #357abd;
+}
+
+.view-button:active {
+  background-color: #2a6099;
+}
+
+.loading, .error, .no-subjects {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+.no-subjects {
+  color: #999;
+  font-style: italic;
+}
+
