@@ -11,6 +11,10 @@ function SubjectResults() {
   const [error, setError] = useState(null)
   const [courseOutcomes, setCourseOutcomes] = useState([])
   const [bloomLevels, setBloomLevels] = useState([])
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editingCell, setEditingCell] = useState(null)
+  const [editValue, setEditValue] = useState('')
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     fetchSubject()
@@ -71,6 +75,64 @@ function SubjectResults() {
     navigate(`/subject/${subjectId}/mapping`)
   }
 
+  const handleEditClick = (studentId, coCode, bloomLevel, currentMark) => {
+    if (!isEditMode) return
+    setEditingCell(`${studentId}-${coCode}-${bloomLevel}`)
+    setEditValue(currentMark > 0 ? currentMark.toFixed(2) : '')
+  }
+
+  const handleSaveMark = async (studentId, coCode, bloomLevel) => {
+    const marksValue = parseFloat(editValue)
+    if (isNaN(marksValue) || marksValue < 0) {
+      alert('Please enter a valid number')
+      return
+    }
+
+    try {
+      setSaving(true)
+      const response = await fetch('/api/student-marks/by-co-bloom', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          student_id: studentId,
+          co_code: coCode,
+          bloom_level: bloomLevel,
+          marks_obtained: marksValue
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to update marks' }))
+        throw new Error(errorData.error || 'Failed to update marks')
+      }
+
+      // Refresh data to show updated marks
+      await fetchData()
+      setEditingCell(null)
+      setEditValue('')
+    } catch (err) {
+      console.error('Error updating marks:', err)
+      alert(`Failed to update marks: ${err.message}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingCell(null)
+    setEditValue('')
+  }
+
+  const handleKeyPress = (e, studentId, coCode, bloomLevel) => {
+    if (e.key === 'Enter') {
+      handleSaveMark(studentId, coCode, bloomLevel)
+    } else if (e.key === 'Escape') {
+      handleCancelEdit()
+    }
+  }
+
   if (loading) {
     return (
       <div className="subject-results-container">
@@ -117,7 +179,18 @@ function SubjectResults() {
     <div className="subject-results-container">
       <div className="header-section">
         <button className="back-button" onClick={handleBack}>← Back to CO-PO Mapping</button>
-        <h1>Student Marks - Results</h1>
+        <div className="header-controls">
+          <h1>Student Marks - Results</h1>
+          <button 
+            className={`edit-mode-button ${isEditMode ? 'active' : ''}`}
+            onClick={() => {
+              setIsEditMode(!isEditMode)
+              setEditingCell(null)
+            }}
+          >
+            {isEditMode ? '✓ Exit Edit Mode' : '✎ Edit Marks'}
+          </button>
+        </div>
         {subject && (
           <div className="subject-info">
             <h2>{subject.name}</h2>
@@ -157,9 +230,56 @@ function SubjectResults() {
                 {courseOutcomes.map(co =>
                   bloomLevels.map(bloom => {
                     const mark = getMark(student, co.code, bloom.name)
+                    const cellKey = `${student.student_id}-${co.code}-${bloom.name}`
+                    const isEditing = editingCell === cellKey
+                    
                     return (
-                      <td key={`${student.student_id}-${co.id}-${bloom.id}`} className="mark-cell">
-                        {mark > 0 ? mark.toFixed(2) : '-'}
+                      <td 
+                        key={`${student.student_id}-${co.id}-${bloom.id}`} 
+                        className={`mark-cell ${isEditMode ? 'editable' : ''} ${isEditing ? 'editing' : ''}`}
+                        onClick={() => handleEditClick(student.student_id, co.code, bloom.name, mark)}
+                        title={isEditMode ? 'Click to edit' : ''}
+                      >
+                        {isEditing ? (
+                          <div className="edit-input-wrapper">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onKeyDown={(e) => handleKeyPress(e, student.student_id, co.code, bloom.name)}
+                              onBlur={() => handleSaveMark(student.student_id, co.code, bloom.name)}
+                              autoFocus
+                              disabled={saving}
+                              className="mark-edit-input"
+                            />
+                            <div className="edit-actions">
+                              <button 
+                                className="save-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSaveMark(student.student_id, co.code, bloom.name)
+                                }}
+                                disabled={saving}
+                              >
+                                ✓
+                              </button>
+                              <button 
+                                className="cancel-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleCancelEdit()
+                                }}
+                                disabled={saving}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          mark > 0 ? mark.toFixed(2) : '-'
+                        )}
                       </td>
                     )
                   })

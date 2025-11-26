@@ -11,6 +11,7 @@
   text-align: center;
 }
 
+
 .back-button {
   background-color: #6c757d;
   color: white;
@@ -35,7 +36,6 @@
   margin: 0 0 10px 0;
   padding: 20px 0;
   border-bottom: 3px solid #28a745;
-  clear: both;
 }
 
 .subject-info {
@@ -220,5 +220,121 @@
 
 .no-data-message h2 {
   color: #666;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  clear: both;
+  margin-bottom: 10px;
+}
+
+.edit-mode-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  margin-left: auto;
+}
+
+.edit-mode-button:hover {
+  background-color: #218838;
+}
+
+.edit-mode-button.active {
+  background-color: #dc3545;
+}
+
+.edit-mode-button.active:hover {
+  background-color: #c82333;
+}
+
+.mark-cell.editable {
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.mark-cell.editable:hover {
+  background-color: #e7f3ff;
+  border: 1px solid #0066cc;
+}
+
+.mark-cell.editing {
+  padding: 0;
+  background-color: #fff3cd;
+}
+
+.edit-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+}
+
+.mark-edit-input {
+  width: 70px;
+  padding: 5px 8px;
+  border: 2px solid #28a745;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.mark-edit-input:focus {
+  outline: none;
+  border-color: #218838;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 3px;
+}
+
+.save-btn, .cancel-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.save-btn:disabled, .cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
